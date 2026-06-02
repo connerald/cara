@@ -16,7 +16,7 @@ class SinaFinanceSearcher:
         """
         初始化搜索工具
         
-        Args:
+        参数:
             timeout: 请求超时时间（秒），默认10秒
         """
         self.timeout = timeout
@@ -29,13 +29,13 @@ class SinaFinanceSearcher:
         """
         搜索新浪财经
         
-        Args:
+        参数:
             query: 搜索内容（简称/代码/拼音）
             
-        Returns:
+        返回:
             搜索结果页面的HTML代码文本
             
-        Raises:
+        异常:
             requests.RequestException: 网络请求出错
             ValueError: 搜索内容为空
         """
@@ -77,11 +77,11 @@ class SinaFinanceSearcher:
         """
         使用自定义请求头搜索
         
-        Args:
+        参数:
             query: 搜索内容
             referer: 请求来源（可选）
             
-        Returns:
+        返回:
             搜索结果页面的HTML代码文本
         """
         if not query or not query.strip():
@@ -117,18 +117,18 @@ class SinaFinanceSearcher:
         """
         获取搜索建议/自动补全（通过lookup.php接口）
         
-        Args:
+        参数:
             query: 搜索内容（股票简称/代码/拼音）
             type_: 搜索类型，默认为'0'（全部）
             
-        Returns:
+        返回:
             搜索结果字典，包含HTML内容或解析后的结果
             
-        Raises:
+        异常:
             requests.RequestException: 网络请求出错
             ValueError: 搜索内容为空
             
-        Note:
+        说明:
             这个接口返回HTML页面而不是JSON，包含搜索结果的完整页面
         """
         if not query or not query.strip():
@@ -172,14 +172,14 @@ def search_sina_finance(query: str, timeout: int = 10) -> str:
     """
     快速搜索新浪财经的便捷函数
     
-    Args:
+    参数:
         query: 搜索内容（简称/代码/拼音）
         timeout: 请求超时时间（秒），默认10秒
         
-    Returns:
+    返回:
         搜索结果页面的HTML代码文本
         
-    Example:
+    示例:
         >>> html = search_sina_finance("中国平安")
         >>> print(len(html))  # 输出HTML长度
     """
@@ -194,15 +194,15 @@ def get_search_suggestions(query: str, timeout: int = 10, type_: str = "0") -> d
     """
     快速获取搜索建议的便捷函数
     
-    Args:
+    参数:
         query: 搜索内容（简称/代码/拼音）
         timeout: 请求超时时间（秒），默认10秒
         type_: 搜索类型，默认为'0'（全部）
         
-    Returns:
+    返回:
         搜索结果字典
         
-    Example:
+    示例:
         >>> result = get_search_suggestions("中国平安")
         >>> print(result['status'])  # 输出HTTP状态码
         >>> print(len(result['content']))  # 输出响应内容长度

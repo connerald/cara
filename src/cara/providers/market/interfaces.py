@@ -34,11 +34,11 @@ class PriceProvider(ABC):
         获取单只股票的价格信息。
         支持按需字段请求，减少不必要的数据抓取和解析开销。
         
-        Args:
+        参数:
             symbol: 股票代码 (如: sh000001 表示上海证券交易所的代码)
             fields: 期望返回的字段集合；None 表示使用提供者默认字段策略
         
-        Returns:
-            StockPrice 或 None 如果获取失败
+        返回:
+            获取成功时返回 StockPrice，失败时返回 None
         """
         pass
