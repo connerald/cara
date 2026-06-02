@@ -1,0 +1,13 @@
+finance_router:
+  report_risk_agent:
+    description: "识别财报文本/PDF中的关键财务指标，并输出规则化风险分析。"
+    keywords:
+      - 财报
+      - 年报
+      - 季报
+      - 半年报
+      - 风险
+      - financial report
+      - risk
+  market_agent:
+    description: "处理行情、新闻、股票价格等市场类问题。"
