@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import {
   AlertTriangle,
   Bot,
@@ -115,7 +115,7 @@ export function App() {
                         <Bot aria-hidden="true" />
                         <h2>AI 解读</h2>
                       </div>
-                      <p>{result.ai_summary}</p>
+                      <MarkdownPreview markdown={result.ai_summary} />
                     </section>
                   )}
 
@@ -253,6 +253,257 @@ function MetricsTable({ metrics }: { metrics: MetricResponse[] }) {
       </table>
     </div>
   );
+}
+
+function MarkdownPreview({ markdown }: { markdown: string }) {
+  return <div className="markdown-rendered">{renderMarkdownBlocks(markdown)}</div>;
+}
+
+function renderMarkdownBlocks(markdown: string) {
+  const lines = markdown.replace(/\r\n/g, "\n").trim().split("\n");
+  const blocks: ReactNode[] = [];
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index];
+
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    const fenceMatch = line.match(/^```(\S*)\s*$/);
+    if (fenceMatch) {
+      const codeLines: string[] = [];
+      index += 1;
+
+      while (index < lines.length && !/^```\s*$/.test(lines[index])) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+
+      blocks.push(
+        <pre className="md-code-block" key={`code-${index}`}>
+          <code>{codeLines.join("\n")}</code>
+        </pre>
+      );
+      index += 1;
+      continue;
+    }
+
+    const headingMatch = line.match(/^(#{1,4})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      blocks.push(renderMarkdownHeading(level, headingMatch[2], `heading-${index}`));
+      index += 1;
+      continue;
+    }
+
+    if (isTableStart(lines, index)) {
+      const headers = splitTableRow(lines[index]);
+      const rows: string[][] = [];
+      index += 2;
+
+      while (index < lines.length && lines[index].includes("|") && lines[index].trim()) {
+        rows.push(splitTableRow(lines[index]));
+        index += 1;
+      }
+
+      blocks.push(
+        <div className="md-table-wrap" key={`table-${index}`}>
+          <table>
+            <thead>
+              <tr>
+                {headers.map((cell, cellIndex) => (
+                  <th key={`head-${cellIndex}`}>{renderInlineMarkdown(cell, `head-${cellIndex}`)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, rowIndex) => (
+                <tr key={`row-${rowIndex}`}>
+                  {headers.map((_, cellIndex) => (
+                    <td key={`cell-${rowIndex}-${cellIndex}`}>
+                      {renderInlineMarkdown(row[cellIndex] ?? "", `cell-${rowIndex}-${cellIndex}`)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+      continue;
+    }
+
+    const unorderedMatch = line.match(/^\s*[-*+]\s+(.+)$/);
+    const orderedMatch = line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if (unorderedMatch || orderedMatch) {
+      const ordered = Boolean(orderedMatch);
+      const items: string[] = [];
+
+      while (index < lines.length) {
+        const itemMatch = ordered
+          ? lines[index].match(/^\s*\d+[.)]\s+(.+)$/)
+          : lines[index].match(/^\s*[-*+]\s+(.+)$/);
+
+        if (!itemMatch) {
+          break;
+        }
+
+        items.push(itemMatch[1]);
+        index += 1;
+      }
+
+      const ListTag = ordered ? "ol" : "ul";
+      blocks.push(
+        <ListTag key={`list-${index}`}>
+          {items.map((item, itemIndex) => (
+            <li key={`item-${itemIndex}`}>{renderInlineMarkdown(item, `item-${itemIndex}`)}</li>
+          ))}
+        </ListTag>
+      );
+      continue;
+    }
+
+    if (/^>\s?/.test(line)) {
+      const quoteLines: string[] = [];
+
+      while (index < lines.length && /^>\s?/.test(lines[index])) {
+        quoteLines.push(lines[index].replace(/^>\s?/, ""));
+        index += 1;
+      }
+
+      blocks.push(
+        <blockquote className="md-blockquote" key={`quote-${index}`}>
+          {renderInlineMarkdown(quoteLines.join("\n"), `quote-${index}`)}
+        </blockquote>
+      );
+      continue;
+    }
+
+    const paragraphLines = [line.trim()];
+    index += 1;
+
+    while (index < lines.length && lines[index].trim() && !isMarkdownBlockStart(lines, index)) {
+      paragraphLines.push(lines[index].trim());
+      index += 1;
+    }
+
+    blocks.push(
+      <p key={`paragraph-${index}`}>{renderInlineMarkdown(paragraphLines.join(" "), `paragraph-${index}`)}</p>
+    );
+  }
+
+  return blocks;
+}
+
+function isMarkdownBlockStart(lines: string[], index: number) {
+  const line = lines[index];
+  return (
+    /^```/.test(line) ||
+    /^(#{1,4})\s+/.test(line) ||
+    /^\s*[-*+]\s+/.test(line) ||
+    /^\s*\d+[.)]\s+/.test(line) ||
+    /^>\s?/.test(line) ||
+    isTableStart(lines, index)
+  );
+}
+
+function isTableStart(lines: string[], index: number) {
+  return lines[index]?.includes("|") && Boolean(lines[index + 1]) && isTableSeparator(lines[index + 1]);
+}
+
+function isTableSeparator(line: string) {
+  const cells = splitTableRow(line);
+  return cells.length > 1 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+}
+
+function splitTableRow(line: string) {
+  return line
+    .trim()
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((cell) => cell.trim());
+}
+
+function renderMarkdownHeading(level: number, text: string, key: string) {
+  const content = renderInlineMarkdown(text, key);
+
+  if (level === 1) {
+    return (
+      <h3 className="md-heading" key={key}>
+        {content}
+      </h3>
+    );
+  }
+
+  if (level === 2) {
+    return (
+      <h4 className="md-heading" key={key}>
+        {content}
+      </h4>
+    );
+  }
+
+  if (level === 3) {
+    return (
+      <h5 className="md-heading" key={key}>
+        {content}
+      </h5>
+    );
+  }
+
+  return (
+    <h6 className="md-heading" key={key}>
+      {content}
+    </h6>
+  );
+}
+
+function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  const tokenPattern = /(`[^`]+`|\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*]+\*)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = tokenPattern.exec(text))) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+
+    const token = match[0];
+    const key = `${keyPrefix}-${match.index}`;
+
+    if (token.startsWith("`")) {
+      nodes.push(<code key={key}>{token.slice(1, -1)}</code>);
+    } else if (token.startsWith("[")) {
+      const linkMatch = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      const href = linkMatch ? linkMatch[2] : "";
+      nodes.push(
+        <a href={getSafeHref(href)} key={key} rel="noreferrer" target="_blank">
+          {linkMatch?.[1] ?? token}
+        </a>
+      );
+    } else if (token.startsWith("**")) {
+      nodes.push(<strong key={key}>{renderInlineMarkdown(token.slice(2, -2), key)}</strong>);
+    } else {
+      nodes.push(<em key={key}>{renderInlineMarkdown(token.slice(1, -1), key)}</em>);
+    }
+
+    lastIndex = tokenPattern.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex));
+  }
+
+  return nodes;
+}
+
+function getSafeHref(href: string) {
+  return /^(https?:|mailto:|#)/i.test(href) ? href : "#";
 }
 
 function groupFindings(findings: FindingResponse[]) {

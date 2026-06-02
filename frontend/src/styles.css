@@ -360,10 +360,88 @@ h1 {
   background: #f3faf8;
 }
 
-.ai-panel p {
+.markdown-rendered {
   color: #263a40;
   line-height: 1.65;
-  white-space: pre-wrap;
+}
+
+.markdown-rendered > * + * {
+  margin-top: 10px;
+}
+
+.markdown-rendered .md-heading {
+  color: #173139;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.markdown-rendered p {
+  overflow-wrap: anywhere;
+}
+
+.markdown-rendered ul,
+.markdown-rendered ol {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.markdown-rendered li + li {
+  margin-top: 4px;
+}
+
+.markdown-rendered code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  color: #173139;
+  background: #dfeeea;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 0.92em;
+}
+
+.markdown-rendered .md-code-block {
+  max-height: 240px;
+  margin: 0;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid #cbdedb;
+  border-radius: 8px;
+  background: #ffffff;
+  white-space: pre;
+}
+
+.markdown-rendered .md-code-block code {
+  padding: 0;
+  background: transparent;
+}
+
+.markdown-rendered .md-blockquote {
+  border-left: 3px solid #0e7c70;
+  background: #ffffff;
+}
+
+.markdown-rendered a {
+  color: #0b6f86;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.markdown-rendered a:hover {
+  text-decoration: underline;
+}
+
+.md-table-wrap {
+  overflow: auto;
+  border: 1px solid #dbe5e1;
+  border-radius: 8px;
+}
+
+.markdown-rendered .md-table-wrap table {
+  min-width: 360px;
+}
+
+.markdown-rendered .md-table-wrap th,
+.markdown-rendered .md-table-wrap td {
+  font-size: 13px;
 }
 
 .risk-list {
