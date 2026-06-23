@@ -215,6 +215,20 @@ frontend/*.log
 # PyPI configuration file
 .pypirc
 
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
