@@ -179,6 +179,41 @@ $env:PYTHONIOENCODING='utf-8'
 - 不提交 `__pycache__`、`src/cara.egg-info` 等生成物。
 - 工作区里可能已有用户改动，不要回滚无关文件。
 
+## Git 提交规范
+
+提交信息使用简洁的 Conventional Commits 风格：
+
+```text
+<type>(<scope>): <summary>
+```
+
+常用 `type`：
+
+- `feat`：新增功能或用户可见能力。
+- `fix`：修复缺陷或错误行为。
+- `docs`：仅修改文档。
+- `test`：新增或调整测试。
+- `refactor`：不改变行为的代码重构。
+- `chore`：构建、配置、依赖、脚本等维护改动。
+
+提交要求：
+
+- `summary` 使用中文或英文均可，但要具体说明本次变更，不要只写 `update`、`fix bug` 等泛泛描述。
+- `scope` 优先使用受影响模块，例如 `reports`、`api`、`tests`、`deps`、`docs`；范围不明确时可以省略。
+- 一次提交只包含一个清晰主题，不混入无关格式化、临时调试代码或生成物。
+- 如果新增或调整依赖，需要在提交说明或正文中写明通过 `uv` 解析后的实际版本。
+- 如果没有运行测试，需要在提交说明、PR 描述或交付说明中明确原因。
+- 不要提交包含密钥、令牌、真实用户隐私数据或本地环境专用路径的内容。
+
+示例：
+
+```text
+feat(reports): 支持抽取资产负债率指标
+fix(api): 返回上传文件解析失败的结构化错误
+docs(agents): 添加 Git 提交规范
+chore(deps): 添加 pypdf 解析依赖
+```
+
 ## 前端方向
 
 计划中的 Web 前端应调用 `POST /api/reports/analyze`，并展示：
