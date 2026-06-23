@@ -2,6 +2,8 @@ from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
 import os
 
+from dotenv import load_dotenv
+
 
 def get_weather(city: str) -> str:
     """获取指定城市的天气。"""
@@ -9,6 +11,7 @@ def get_weather(city: str) -> str:
 
 
 def build_demo_agent():
+    load_dotenv(override=True)
     model = ChatOpenAI(
         model=os.getenv("CARA_MODEL", "deepseek-v4-pro"),
         api_key=os.getenv("DEEPSEEK_API_KEY"),

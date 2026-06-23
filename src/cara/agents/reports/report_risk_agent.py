@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from dotenv import load_dotenv
+
 from cara.reports import analyze_financial_risks, extract_financial_report
 from cara.reports.models import RiskReport
 from cara.tools.reports.analyze_report_risk import analyze_report_risk
@@ -19,6 +21,7 @@ REPORT_RISK_SYSTEM_PROMPT = """
 def build_default_model() -> Any:
     from langchain_openai import ChatOpenAI
 
+    load_dotenv(override=True)
     api_key = os.getenv("DEEPSEEK_API_KEY")
     if not api_key:
         raise RuntimeError("缺少 DEEPSEEK_API_KEY 环境变量，无法调用 DeepSeek。")

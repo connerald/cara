@@ -41,6 +41,21 @@ print(result["messages"][-1].content)
 $env:DEEPSEEK_API_KEY = "..."
 ```
 
+也可以在项目根目录创建 `.env` 文件；项目会优先读取该文件中的值，缺失时再使用系统环境变量。
+
+最小配置只需要 DeepSeek API key：
+
+```env
+DEEPSEEK_API_KEY=...
+```
+
+如需覆盖默认模型或 API 地址，可以添加以下可选变量：
+
+```env
+CARA_MODEL=deepseek-v4-pro
+CARA_MODEL_BASE_URL=https://api.deepseek.com
+```
+
 PDF 解析通过 `pypdf` 实现。
 
 ## FastAPI 后端
