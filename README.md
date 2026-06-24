@@ -23,7 +23,7 @@ Cara 是一个早期阶段的金融分析 agent 项目。当前 MVP 聚焦于识
 运行确定性财报风险分析，不调用 LLM：
 
 ```powershell
-uv run python -c "from cara.tools.reports.analyze_report_risk import analyze_report_risk; print(analyze_report_risk('examples/sample_report.txt'))"
+uv run python -c "from cara.tools.reports.analyze_report_risk import analyze_report_risk; print(analyze_report_risk('examples/reports/sample_report.txt'))"
 ```
 
 构建 LangChain 财报风险 agent：
@@ -31,7 +31,7 @@ uv run python -c "from cara.tools.reports.analyze_report_risk import analyze_rep
 ```python
 from cara.agents.reports.report_risk_agent import invoke_report_risk_agent
 
-result = invoke_report_risk_agent("examples/sample_report.txt")
+result = invoke_report_risk_agent("examples/reports/sample_report.txt")
 print(result["messages"][-1].content)
 ```
 
@@ -76,7 +76,7 @@ curl http://127.0.0.1:8000/api/health
 
 ```powershell
 curl.exe -X POST `
-  -F "file=@examples/sample_report.txt" `
+  -F "file=@examples/reports/sample_report.txt" `
   http://127.0.0.1:8000/api/reports/analyze
 ```
 
@@ -84,7 +84,7 @@ curl.exe -X POST `
 
 ```powershell
 curl.exe -X POST `
-  -F "file=@examples/sample_report.txt" `
+  -F "file=@examples/reports/sample_report.txt" `
   http://127.0.0.1:8000/api/reports/analyze/ai
 ```
 

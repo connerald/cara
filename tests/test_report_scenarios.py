@@ -82,6 +82,23 @@ class ReportScenarioTest(unittest.TestCase):
         self.assertIn("资产总计", finding.evidence[0])
         self.assertGreaterEqual(finding.metrics["missing_count"], 4)
 
+    def test_realistic_maotai_excerpt_uses_statement_values_not_note_numbers(self):
+        snapshot = extract_financial_report(FIXTURE_DIR / "realistic" / "maotai_2025_core_statements_excerpt.txt")
+        report = analyze_financial_risks(snapshot)
+
+        self.assertEqual(snapshot.company_name, "贵州茅台酒股份有限公司")
+        self.assertEqual(snapshot.get("monetary_funds"), 51690610946.50)
+        self.assertEqual(snapshot.get("accounts_receivable"), 2609048.49)
+        self.assertEqual(snapshot.get("inventory"), 61427421796.18)
+        self.assertEqual(snapshot.get("total_assets"), 303834844021.44)
+        self.assertEqual(snapshot.get("total_liabilities"), 49875590112.37)
+        self.assertEqual(snapshot.get("revenue"), 168838102514.79)
+        self.assertEqual(snapshot.get("net_profit"), 82320067101.68)
+        self.assertEqual(snapshot.get("operating_cash_flow"), 61522204989.35)
+        self.assertEqual(snapshot.get("current_portion_debt"), 44206237.05)
+        self.assertEqual(snapshot.metrics["current_portion_debt"].unit, "元")
+        self.assertEqual(report.findings, [])
+
     def test_every_non_data_quality_finding_keeps_auditable_evidence(self):
         for path in FIXTURE_DIR.glob("*.txt"):
             with self.subTest(path=path.name):

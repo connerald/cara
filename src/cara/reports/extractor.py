@@ -37,6 +37,7 @@ METRIC_SPECS: tuple[MetricSpec, ...] = (
 
 NUMBER_PATTERN = re.compile(r"(?<![\w.])-?\(?\d[\d,，]*(?:\.\d+)?\)?")
 RAW_TEXT_PREVIEW_CHARS = 8000
+METRIC_ALIASES = tuple(alias for spec in METRIC_SPECS for alias in spec.aliases)
 
 
 def extract_financial_report(path: str | Path) -> FinancialReportSnapshot:
@@ -120,35 +121,103 @@ def extract_report_type(text: str) -> str | None:
 def extract_metrics(text: str) -> dict[str, FinancialMetric]:
     metrics: dict[str, FinancialMetric] = {}
     lines = text.splitlines()
-    for line_number, line in enumerate(lines, start=1):
+    current_unit: str | None = None
+    for line_index, line in enumerate(lines):
+        line_number = line_index + 1
         normalized = compact_line(line)
         if not normalized:
             continue
+        current_unit = extract_unit(normalized) or current_unit
+        continuation = next_compact_line(lines, line_index + 1)
+        candidates = metric_line_candidates(normalized, continuation)
         for spec in METRIC_SPECS:
-            if spec.key in metrics:
+            existing_metric = metrics.get(spec.key)
+            if existing_metric and not should_replace_metric(spec.key, existing_metric, candidates):
                 continue
-            alias = matched_alias(normalized, spec.aliases)
-            if not alias:
-                continue
-            value = extract_first_metric_number(normalized, alias)
+            value = None
+            matched_candidate = normalized
+            for candidate in candidates:
+                alias = matched_alias(candidate, spec.aliases)
+                if not alias:
+                    continue
+                if not alias_belongs_to_line(normalized, alias):
+                    continue
+                value = extract_first_metric_number(candidate, alias)
+                if value is not None:
+                    matched_candidate = candidate
+                    break
             if value is None:
                 continue
             metrics[spec.key] = FinancialMetric(
                 key=spec.key,
                 name=spec.name,
                 value=value,
-                unit=extract_unit(normalized),
-                source_text=normalized[:240],
+                unit=extract_unit(normalized) or current_unit,
+                source_text=matched_candidate[:240],
                 line_number=line_number,
             )
     return metrics
 
 
+def should_replace_metric(
+    key: str,
+    existing_metric: FinancialMetric,
+    candidates: list[str],
+) -> bool:
+    if key != "net_profit":
+        return False
+    existing_source = existing_metric.source_text or ""
+    if "归属于" in existing_source:
+        return False
+    return any("归属于" in candidate and "净利润" in candidate for candidate in candidates)
+
+
+def alias_belongs_to_line(line: str, alias: str) -> bool:
+    if alias in line:
+        return True
+    compacted_line = line.replace(" ", "")
+    return bool(compacted_line) and alias.startswith(compacted_line)
+
+
+def metric_line_candidates(line: str, continuation: str | None) -> list[str]:
+    if not continuation:
+        return [line]
+    if is_blank_metric_row(line, continuation):
+        return [line]
+    return [
+        line,
+        f"{line} {continuation}",
+        f"{line}{continuation}",
+    ]
+
+
+def is_blank_metric_row(line: str, continuation: str) -> bool:
+    if NUMBER_PATTERN.search(line):
+        return False
+    if line not in METRIC_ALIASES:
+        return False
+    return not continuation.startswith(("（", "(", "量净额"))
+
+
+def next_compact_line(lines: list[str], start_index: int) -> str | None:
+    for line in lines[start_index:]:
+        normalized = compact_line(line)
+        if normalized:
+            return normalized
+    return None
+
+
 def matched_alias(line: str, aliases: tuple[str, ...]) -> str | None:
     for alias in aliases:
-        if alias in line:
+        if alias in line and is_alias_match(line, alias):
             return alias
     return None
+
+
+def is_alias_match(line: str, alias: str) -> bool:
+    if alias == "负债合计":
+        return line.startswith(alias)
+    return True
 
 
 def extract_first_metric_number(line: str, alias: str) -> float | None:
@@ -156,7 +225,18 @@ def extract_first_metric_number(line: str, alias: str) -> float | None:
     numbers = NUMBER_PATTERN.findall(segment)
     if not numbers:
         return None
-    return parse_number(numbers[0])
+    return parse_number(select_metric_number(numbers))
+
+
+def select_metric_number(numbers: list[str]) -> str:
+    if len(numbers) >= 2 and is_likely_note_number(numbers[0]):
+        return numbers[1]
+    return numbers[0]
+
+
+def is_likely_note_number(raw: str) -> bool:
+    token = raw.strip().replace(",", "").replace("，", "")
+    return token.isdigit() and int(token) <= 200
 
 
 def parse_number(raw: str) -> float | None:
