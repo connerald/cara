@@ -5,8 +5,10 @@ import {
   Bot,
   CheckCircle2,
   FileText,
+  FileSearch,
+  ListChecks,
   Loader2,
-  RefreshCw,
+  SearchCheck,
   ShieldAlert,
   Table2,
   UploadCloud
@@ -165,9 +167,42 @@ export function App() {
 function EmptyState() {
   return (
     <div className="empty-state">
-      <RefreshCw aria-hidden="true" />
-      <h2>上传财报后查看风险分析</h2>
-      <p>结果会展示公司快照、风险分数、指标证据、风险分组和报告预览。</p>
+      <div className="empty-intro">
+        <FileSearch aria-hidden="true" />
+        <div>
+          <p className="eyebrow">分析流程</p>
+          <h2>把财报放进左侧上传框，Cara 会识别文本并返回风险筛查结果</h2>
+          <p>
+            支持 .pdf、.txt、.md 和 .text 文件。系统会先做确定性指标抽取，再用规则生成带证据的风险发现。
+          </p>
+        </div>
+      </div>
+
+      <div className="guide-grid" aria-label="财报分析流程">
+        <article className="guide-item">
+          <UploadCloud aria-hidden="true" />
+          <span>1</span>
+          <h3>上传财报</h3>
+          <p>选择本地财报文件，点击开始分析。</p>
+        </article>
+        <article className="guide-item">
+          <SearchCheck aria-hidden="true" />
+          <span>2</span>
+          <h3>识别指标</h3>
+          <p>解析原文，抽取资产、负债、收入、利润和现金流等指标。</p>
+        </article>
+        <article className="guide-item">
+          <ListChecks aria-hidden="true" />
+          <span>3</span>
+          <h3>查看结果</h3>
+          <p>查看风险分数、证据行、解析原文预览和 Markdown 报告。</p>
+        </article>
+      </div>
+
+      <div className="empty-note">
+        <ShieldAlert aria-hidden="true" />
+        <p>当前输出用于财报风险筛查辅助，不能视为投资建议。</p>
+      </div>
     </div>
   );
 }
