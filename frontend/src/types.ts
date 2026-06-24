@@ -24,6 +24,7 @@ export interface ReportSnapshotResponse {
   report_type: string | null;
   source_path: string | null;
   raw_text_chars: number;
+  raw_text_preview: string | null;
 }
 
 export interface ReportAnalysisResponse {

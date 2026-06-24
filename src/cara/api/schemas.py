@@ -27,6 +27,7 @@ class ReportSnapshotResponse(BaseModel):
     report_type: str | None = None
     source_path: str | None = None
     raw_text_chars: int
+    raw_text_preview: str | None = None
 
 
 class ReportAnalysisResponse(BaseModel):

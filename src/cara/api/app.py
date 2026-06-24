@@ -109,6 +109,7 @@ def serialize_report(report: RiskReport, ai_summary: str | None = None) -> Repor
             report_type=snapshot.report_type,
             source_path=snapshot.source_path,
             raw_text_chars=snapshot.raw_text_chars,
+            raw_text_preview=snapshot.raw_text_preview,
         ),
         metrics=metrics,
         findings=findings,

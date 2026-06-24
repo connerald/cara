@@ -40,6 +40,7 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body["snapshot"]["company_name"], "测试科技股份有限公司")
         self.assertEqual(body["snapshot"]["source_path"], "sample_report.txt")
+        self.assertIn("资产总计 1,000.00 万元", body["snapshot"]["raw_text_preview"])
         self.assertLess(body["score"], 100)
         self.assertTrue(any(metric["key"] == "total_assets" for metric in body["metrics"]))
         self.assertTrue(any(finding["title"] == "资产负债率偏高" for finding in body["findings"]))

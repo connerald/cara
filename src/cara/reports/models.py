@@ -25,6 +25,7 @@ class FinancialReportSnapshot:
     report_type: str | None = None
     source_path: str | None = None
     raw_text_chars: int = 0
+    raw_text_preview: str | None = None
     metrics: dict[str, FinancialMetric] = field(default_factory=dict)
 
     def get(self, key: str) -> float | None:

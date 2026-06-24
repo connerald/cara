@@ -575,6 +575,42 @@ td span {
   white-space: pre-wrap;
 }
 
+.parsed-text-block {
+  display: grid;
+  gap: 8px;
+}
+
+.preview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #66757d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.preview-meta span {
+  padding: 3px 7px;
+  border: 1px solid #dbe5e1;
+  border-radius: 6px;
+  background: #f5f8f7;
+}
+
+.raw-text-preview {
+  max-height: 300px;
+  margin: 0;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid #dbe5e1;
+  border-radius: 8px;
+  color: #263a40;
+  background: #ffffff;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
 @media (max-width: 1100px) {
   .workspace,
   .content-grid {
@@ -606,4 +642,5 @@ td span {
   .counts-row {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
 }

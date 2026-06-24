@@ -140,6 +140,14 @@ export function App() {
                   <section className="panel-section">
                     <div className="section-title">
                       <FileText aria-hidden="true" />
+                      <h2>解析原文预览</h2>
+                    </div>
+                    <ParsedTextPreview snapshot={result.snapshot} />
+                  </section>
+
+                  <section className="panel-section">
+                    <div className="section-title">
+                      <FileText aria-hidden="true" />
                       <h2>Markdown 报告</h2>
                     </div>
                     <pre className="markdown-preview">{result.markdown}</pre>
@@ -251,6 +259,23 @@ function MetricsTable({ metrics }: { metrics: MetricResponse[] }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function ParsedTextPreview({ snapshot }: { snapshot: ReportAnalysisResponse["snapshot"] }) {
+  const preview = snapshot.raw_text_preview?.trim();
+  if (!preview) {
+    return <p className="muted">没有可展示的解析原文。</p>;
+  }
+
+  return (
+    <div className="parsed-text-block">
+      <div className="preview-meta">
+        <span>解析字符数：{formatNumber(snapshot.raw_text_chars)}</span>
+        {snapshot.raw_text_chars > preview.length && <span>当前显示前 {formatNumber(preview.length)} 字</span>}
+      </div>
+      <pre className="raw-text-preview">{preview}</pre>
     </div>
   );
 }

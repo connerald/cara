@@ -33,6 +33,7 @@ class ReportRiskTest(unittest.TestCase):
 
             snapshot = extract_financial_report(path)
             self.assertEqual(snapshot.company_name, "测试科技股份有限公司")
+            self.assertIn("资产总计 1,000.00 万元", snapshot.raw_text_preview or "")
             self.assertEqual(snapshot.get("total_assets"), 1000.0)
             self.assertEqual(snapshot.get("operating_cash_flow"), -20.0)
 

@@ -36,6 +36,7 @@ METRIC_SPECS: tuple[MetricSpec, ...] = (
 )
 
 NUMBER_PATTERN = re.compile(r"(?<![\w.])-?\(?\d[\d,，]*(?:\.\d+)?\)?")
+RAW_TEXT_PREVIEW_CHARS = 8000
 
 
 def extract_financial_report(path: str | Path) -> FinancialReportSnapshot:
@@ -47,6 +48,7 @@ def extract_financial_report(path: str | Path) -> FinancialReportSnapshot:
         report_type=extract_report_type(text),
         source_path=str(report_path),
         raw_text_chars=len(text),
+        raw_text_preview=text[:RAW_TEXT_PREVIEW_CHARS],
     )
     snapshot.metrics.update(extract_metrics(text))
     return snapshot
